@@ -1,0 +1,169 @@
+import java.util.*;
+class User{
+    private String username;
+    private String password;
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public String getPassword() {
+        return password;
+    }
+}
+class Reservation {
+    private static int nextPnr = 1001;
+    private String trainNumber;
+    private String trainName;
+    private String classType;
+    private String dateOfJourney;
+    private String source;
+    private String destination;
+    private int pnr;
+    public Reservation(String trainNumber, String trainName, String classType, String dateOfJourney, String source, String destination) {
+        this.trainNumber = trainNumber;
+        this.trainName = trainName;
+        this.classType = classType;
+        this.dateOfJourney = dateOfJourney;
+        this.source = source;
+        this.destination = destination;
+        this.pnr = nextPnr++;
+    }
+    public int getPnr() {
+        return pnr;
+    }
+    public String getTrainNumber() {
+        return trainNumber;
+    }
+    public String getTrainName() {
+        return trainName;
+    }
+    public String getClassType() {
+        return classType;
+    }
+    public String getDateOfJourney() {
+        return dateOfJourney;
+    }
+    public String getSource() {
+        return source;
+    }
+    public String getDestination() {
+        return destination;
+    }
+}
+public class OnlineReservationSystem {
+    private static Map<String, User> users = new HashMap<>();
+    private static Map<Integer, Reservation> reservations = new HashMap<>();
+    private static Scanner scanner = new Scanner(System.in);
+    private static User currentUser;
+    public static void main(String[] args) {
+        initializeUsers();
+        login();
+        showMenu();
+    }
+    private static void initializeUsers() {
+        // Sample users (in a real system, user data would be stored in a database)
+        users.put("user1", new User("user1", "password1"));
+        users.put("user2", new User("user2", "password2"));
+    }
+    private static void login() {
+        System.out.print("Enter username: ");
+        String username = scanner.nextLine();
+        System.out.print("Enter password: ");
+        String password = scanner.nextLine();
+
+        User user = users.get(username);
+
+        if (user != null && user.getPassword().equals(password)) {
+            currentUser = user;
+            System.out.println("Login successful!");
+        } else {
+            System.out.println("Invalid username or password. Exiting...");
+            System.exit(0);
+        }
+    }
+
+    private static void showMenu() {
+        int choice;
+
+        do {
+            System.out.println("\nMenu:");
+            System.out.println("1. Make a Reservation");
+            System.out.println("2. Cancel Reservation");
+            System.out.println("3. Logout");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline character
+
+            switch (choice) {
+                case 1:
+                    makeReservation();
+                    break;
+                case 2:
+                    cancelReservation();
+                    break;
+                case 3:
+                    System.out.println("Logging out. Goodbye!");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 3);
+    }
+
+    private static void makeReservation() {
+        System.out.print("Enter train number: ");
+        String trainNumber = scanner.nextLine();
+        // Assuming train name is fetched based on train number from a database
+        String trainName = getTrainName(trainNumber);
+        System.out.print("Enter class type: ");
+        String classType = scanner.nextLine();
+        System.out.print("Enter date of journey: ");
+        String dateOfJourney = scanner.nextLine();
+        System.out.print("Enter source: ");
+        String source = scanner.nextLine();
+        System.out.print("Enter destination: ");
+        String destination = scanner.nextLine();
+
+        Reservation reservation = new Reservation(trainNumber, trainName, classType, dateOfJourney, source, destination);
+        reservations.put(reservation.getPnr(), reservation);
+        System.out.println("Reservation successful! Your PNR number is: " + reservation.getPnr());
+    }
+
+    private static String getTrainName(String trainNumber) {
+        // In a real system, you would fetch train name from a database based on the train number
+        // For simplicity, we assume a simple mapping here
+        return "Train" + trainNumber;
+    }
+
+    private static void cancelReservation() {
+        System.out.print("Enter PNR number to cancel reservation: ");
+        int pnr = scanner.nextInt();
+
+        Reservation reservation = reservations.get(pnr);
+
+        if (reservation != null) {
+            System.out.println("Reservation details:");
+            System.out.println("Train Number: " + reservation.getTrainNumber());
+            System.out.println("Train Name: " + reservation.getTrainName());
+            System.out.println("Class Type: " + reservation.getClassType());
+            System.out.println("Date of Journey: " + reservation.getDateOfJourney());
+            System.out.println("Source: " + reservation.getSource());
+            System.out.println("Destination: " + reservation.getDestination());
+
+            System.out.print("Press 'OK' to confirm cancellation: ");
+            String confirmation = scanner.next();
+
+            if (confirmation.equalsIgnoreCase("OK")) {
+                reservations.remove(pnr);
+                System.out.println("Reservation cancelled successfully.");
+            } else {
+                System.out.println("Cancellation aborted.");
+            }
+        } else {
+            System.out.println("Invalid PNR number. No reservation found.");
+        }
+    }
+}
